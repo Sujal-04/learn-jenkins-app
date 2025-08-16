@@ -3,8 +3,8 @@ pipeline {
 
     stages {
         stage('Build') {
-            agent{
-                docker{
+            agent {
+                docker {
                     image 'node:18-alpine'
                     reuseNode true
                 }
@@ -22,49 +22,52 @@ pipeline {
             }
         }
 
-        stage('Test'){
-            agent{
-                docker{
+        stage('Test') {
+            agent {
+                docker {
                     image 'node:18-alpine'
                     reuseNode true
                 }
             }
-            steps{
-                sh''' 
+            steps {
+                sh '''
                     test -f build/index.html
                     npm test
                 '''
             }
-            post{
-                always{
+            post {
+                always {
                     junit 'test-results/junit.xml'
                 }
             }
         }
 
-        stage('E2E'){
-            agent{
-                docker{
-                    image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
+        stage('E2E') {
+            agent {
+                docker {
+                    image 'node:18-alpine'
                     reuseNode true
                 }
             }
-            steps{
+            steps {
                 sh '''
                     npm install serve
-                    node_modules/.bin/serve -s build &
+                    nohup npx serve -s build &   # run in background
                     sleep 10
                     npx playwright test
                 '''
             }
-
-            post{
-                always{
-                    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright Report'])
+            post {
+                always {
+                    junit 'test-results.xml'
+                    publishHTML([
+                        reportDir: 'playwright-report',
+                        reportFiles: 'index.html',
+                        reportName: 'Playwright Report'
+                    ])
                 }
             }
         }
-
         stage('Deploy') {
             agent{
                 docker{
