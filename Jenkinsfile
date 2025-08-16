@@ -56,19 +56,6 @@ pipeline {
                     npx playwright test --reporter=html,junit --output=playwright-report
                 '''
             }
-            post {
-                always {
-                    junit 'playwright-report/junit.xml'
-                    publishHTML([
-                        allowMissing: true,
-                        alwaysLinkToLastBuild: false,
-                        keepAll: true,
-                        reportDir: 'playwright-report',
-                        reportFiles: 'index.html',
-                        reportName: 'Playwright Report'
-                    ])
-                }
-            }
         }
 
         stage('Deploy') {
@@ -82,8 +69,6 @@ pipeline {
                 sh '''
                     npm install netlify-cli
                     node_modules/.bin/netlify --version
-                    # Uncomment below to deploy
-                    # node_modules/.bin/netlify deploy --dir=build --prod
                 '''
             }
         }
