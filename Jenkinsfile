@@ -1,6 +1,9 @@
 pipeline {
     agent any
 
+    environment{
+        NETLIFY_SITE_ID = 'ebfc23f3-5633-4bee-86b0-8151a44557b4'
+    }
     stages {
         stage('Build') {
             agent {
@@ -56,19 +59,6 @@ pipeline {
                     npx playwright test --reporter=html,junit --output=playwright-report
                 '''
             }
-            post {
-                always {
-                    junit 'test-results/junit.xml'
-                    publishHTML([
-                        allowMissing: true,
-                        alwaysLinkToLastBuild: false,
-                        keepAll: true,
-                        reportDir: 'playwright-report',
-                        reportFiles: 'index.html',
-                        reportName: 'Playwright Report'
-                    ])
-                }
-            }
         }
 
         stage('Deploy') {
@@ -82,6 +72,7 @@ pipeline {
                 sh '''
                     npm install netlify-cli
                     node_modules/.bin/netlify --version
+                    echo 'Deploying to production. siteid :$NETLIFY_SITE_ID'
                 '''
             }
         }
