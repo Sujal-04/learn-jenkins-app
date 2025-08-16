@@ -30,10 +30,15 @@ pipeline {
                 }
             }
             steps {
-                sh ''' 
+                sh '''
                     test -f build/index.html
                     npm test
                 '''
+            }
+            post {
+                always {
+                    junit 'test-results/junit.xml'
+                }
             }
         }
 
@@ -42,33 +47,30 @@ pipeline {
                 docker {
                     image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
                     reuseNode true
-                 }
+                }
             }
             steps {
                 sh '''
-                npm install serve
-                # Serve the React build folder in background
-                node_modules/.bin/serve -s build &
-                sleep 10
-                # Run Playwright tests and generate HTML & JUnit reports
-                npx playwright test --reporter=html,junit
+                    npm install serve
+                    node_modules/.bin/serve -s build &
+                    sleep 10
+                    npx playwright test --reporter=html,junit
                 '''
             }
             post {
                 always {
+                    junit 'test-results/junit.xml'
                     publishHTML([
-                    allowMissing: false,
-                    alwaysLinkToLastBuild: false,
-                    keepAll: false,
-                    reportDir: 'playwright-report',
-                    reportFiles: 'index.html',
-                    reportName: 'Playwright Report'
-                ])
-            junit 'test-results/junit.xml'
+                        allowMissing: true,
+                        alwaysLinkToLastBuild: false,
+                        keepAll: true,
+                        reportDir: 'playwright-report',
+                        reportFiles: 'index.html',
+                        reportName: 'Playwright Report'
+                    ])
+                }
+            }
         }
-    }
-}
-
 
         stage('Deploy') {
             agent {
@@ -79,15 +81,12 @@ pipeline {
             }
             steps {
                 sh '''
-                    echo "Deploy step here"
+                    npm install netlify-cli
+                    node_modules/.bin/netlify --version
+                    # example deploy command:
+                    # node_modules/.bin/netlify deploy --dir=build --prod
                 '''
             }
-        }
-    }
-
-    post {
-        always {
-            junit 'test-results/junit.xml'
         }
     }
 }
