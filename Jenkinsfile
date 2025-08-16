@@ -58,7 +58,7 @@ pipeline {
             }
             post {
                 always {
-                    junit 'playwright-report/junit.xml'
+                    junit 'test-results/junit.xml'
                     publishHTML([
                         allowMissing: true,
                         alwaysLinkToLastBuild: false,
