@@ -52,7 +52,7 @@ pipeline {
             steps {
                 sh '''
                     npm install serve
-                    npx playwright install
+                    npx playwright install --with-deps
                     nohup npx serve -s build &   # run in background
                     sleep 10
                     npx playwright test
