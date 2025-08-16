@@ -60,7 +60,7 @@ pipeline {
 
             pots{
                 always{
-                    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir :reportDir: 'test-results', reportFiles: 'index.html', reportName: 'Test Report'])
+                    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'test-results', reportFiles: 'index.html', reportName: 'Test Report'])
                 }
             }
         }
