@@ -56,6 +56,19 @@ pipeline {
                     npx playwright test --reporter=html,junit --output=playwright-report
                 '''
             }
+            post {
+                always {
+                    junit 'playwright-report/junit.xml'
+                    publishHTML([
+                        allowMissing: true,
+                        alwaysLinkToLastBuild: false,
+                        keepAll: true,
+                        reportDir: 'playwright-report',
+                        reportFiles: 'index.html',
+                        reportName: 'Playwright Report'
+                    ])
+                }
+            }
         }
 
         stage('Deploy') {
