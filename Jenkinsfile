@@ -3,8 +3,8 @@ pipeline {
 
     stages {
         stage('Build') {
-            agent{
-                docker{
+            agent {
+                docker {
                     image 'node:18-alpine'
                     reuseNode true
                 }
@@ -22,39 +22,39 @@ pipeline {
             }
         }
 
-        stage('Test'){
-            agent{
-                docker{
+        stage('Test') {
+            agent {
+                docker {
                     image 'node:18-alpine'
                     reuseNode true
                 }
             }
-            steps{
-                sh''' 
+            steps {
+                sh ''' 
                     test -f build/index.html
                     npm test
                 '''
             }
         }
-        
+
         stage('Deploy') {
-            agent{
-                docker{
+            agent {
+                docker {
                     image 'node:18-alpine'
                     reuseNode true
                 }
             }
             steps {
                 sh '''
-
+                    echo "Deploy step here"
                 '''
             }
         }
     }
-    post{
-            always{
-                junit 'test-results/junit.xml'
-            }
+
+    post {
+        always {
+            junit 'test-results/junit.xml'
         }
     }
 }
