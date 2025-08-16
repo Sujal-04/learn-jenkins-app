@@ -22,7 +22,7 @@ pipeline {
             }
         }
 
-        stage('Test') {
+        stage('Unit Tests') {
             agent {
                 docker {
                     image 'node:18-alpine'
@@ -31,7 +31,6 @@ pipeline {
             }
             steps {
                 sh '''
-                    test -f build/index.html
                     npm test
                 '''
             }
@@ -42,7 +41,7 @@ pipeline {
             }
         }
 
-        stage('E2E') {
+        stage('E2E Tests') {
             agent {
                 docker {
                     image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
@@ -52,14 +51,14 @@ pipeline {
             steps {
                 sh '''
                     npm install serve
-                    node_modules/.bin/serve -s build &
+                    node_modules/.bin/serve -s build -l 3000 &
                     sleep 10
-                    npx playwright test --reporter=html,junit
+                    npx playwright test --reporter=html,junit --output=playwright-report
                 '''
             }
             post {
                 always {
-                    junit 'test-results/junit.xml'
+                    junit 'playwright-report/junit.xml'
                     publishHTML([
                         allowMissing: true,
                         alwaysLinkToLastBuild: false,
@@ -83,7 +82,7 @@ pipeline {
                 sh '''
                     npm install netlify-cli
                     node_modules/.bin/netlify --version
-                    # example deploy command:
+                    # Uncomment below to deploy
                     # node_modules/.bin/netlify deploy --dir=build --prod
                 '''
             }
